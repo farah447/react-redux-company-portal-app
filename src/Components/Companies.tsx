@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, ChangeEvent} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchData } from './CompaniesSlice';
-import { RootState } from '../store';
-import { AppDispatch } from '../store'; 
+import { fetchData, searchCompany, sortCompanies } from './CompaniesSlice';
+import { RootState, companiesDispatch } from '../types';
+import SortCompany from "./SortCompany";
+import { Link } from "react-router-dom";
+
 
 const Companies = () => {
-    const { data, isLoading, error } = useSelector((state: RootState) => state.companiesR);
-    const dispatch: AppDispatch = useDispatch();
+    const { companies, isLoading, error, searchTerm } = useSelector((state: RootState) => state.companiesR);
+    const dispatch: companiesDispatch = useDispatch();
 
     useEffect(() => {
         dispatch(fetchData());
@@ -19,18 +21,43 @@ const Companies = () => {
         return <p>{error}</p>;
     }
 
-    console.log(data);
+    const handleSearch = (event: ChangeEvent<HTMLInputElement>)=>{
+        dispatch(searchCompany(Number(event.target.value)));
+    };
+
+    const filteredCompanies = searchTerm? 
+    //search by id:
+        companies.filter((company) => company.id === searchTerm): companies;
+    //search by login:
+    //? companies.filter((company)=>
+       // company.login.toLowerCase().includes(searchTerm.toLowerCase())
+    //) : companies;
+
+
     return (
         <div>
-            <h2>companies</h2>
-            {data.length > 0 &&
-                data.map((company: any) => {
-                    return (
-                        <div key={company.id}>
-                            <h2>{company.id}</h2>
-                        </div>
-                    );
-                })}
+            <div className='actions'>
+                <h2>Companies App</h2>
+                <input type='text' placeholder='search by company id' value={searchTerm} onChange={handleSearch}/>
+                <SortCompany/>
+            </div>
+            <section className='companies'>
+                {filteredCompanies.length > 0 &&
+                    filteredCompanies.map((company) => {
+                        const { id, avatar_url, login, description } = company;
+                        return (
+                            <article key={id} className='company'>
+                                <img src={avatar_url} alt={login} />
+                                <h2>{id}</h2>
+                                <p>{login}</p>
+                                <p>{description}</p>
+                                <Link to={`/Companies/${id}`}>
+                                    <button>show more</button> 
+                                </Link> 
+                            </article>
+                        );
+                    })}
+            </section>
         </div>
     );
 };
