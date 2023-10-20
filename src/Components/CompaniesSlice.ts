@@ -11,7 +11,7 @@ export const fetchData = createAsyncThunk('companies/fetchData', async () => {
 });
 
 export const fetchCompany = createAsyncThunk('companies/fetchCompany', async (id: number) => {
-    const response = await fetch('https://api.github.com/orgs/${id}');
+    const response = await fetch(`https://api.github.com/orgs/${id}`);
     if (!response.ok) {
         throw new Error('Network error');
     }
